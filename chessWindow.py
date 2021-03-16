@@ -50,9 +50,13 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
 
 
     def setSquarePiece(self,squareNumber,pieceName): #square number is 0 indexed. Piece 0 is top left and moved down first
-        pixmap = QPixmap(f"{pieceName}.png")
-        self.squares[squareNumber].setPixmap(pixmap.scaled(64, 64, Qt.KeepAspectRatio))
-        self.squares[squareNumber].pieceName = pieceName
+        if pieceName != False:
+            pixmap = QPixmap(f"{pieceName}.png")
+            self.squares[squareNumber].setPixmap(pixmap.scaled(64, 64, Qt.KeepAspectRatio))
+            self.squares[squareNumber].pieceName = pieceName
+        else:
+            self.squares[squareNumber].clear()#removes the pixmap
+            self.squares[squareNumber].pieceName = None
 
     def createSquare(self,startX,startY,width,height,x,y):
         self.newSquare = QLabel(self,alignment=Qt.AlignCenter)
@@ -72,21 +76,49 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
     def squareClicked(self,squareNumber):
         square = self.squares[squareNumber]
         pieceName = square.pieceName
+        self.deleteShownMoves()
+        self.updateSelection(square)
+        self.showMoves(square,pieceName,squareNumber)
         if pieceName is None:
             return#finish me
-        self.updateSelection(square)
 
-        # if pieceName[len(pieceName)-1:len(pieceName)] == "B": #black piece
-        #     print("black")
-        # else: #white piece
-        #     print("white")
 
-    def showMoves(self,square):
-        pass
+    def showMoves(self,square,pieceName,squareNumber):
+        if pieceName[len(pieceName)-1:len(pieceName)] == "B": #black piece
+            colour = "black"
+        else: #white piece
+            colour = "white"
+        if pieceName[0:4] == "pawn":
+            if colour == "white":
+                self.displayMoveOption(squareNumber-1)
+                if squareNumber%8==6:
+                    self.displayMoveOption(squareNumber-2)
+                    print("can move twice")
+                # else:
+                #     print("can move once")
+            else: #so black pawn
+                self.displayMoveOption(squareNumber+1)
+                if squareNumber%8==1:
+                    self.displayMoveOption(squareNumber+2)
+                    print("can move twice")
+                # else:
+                #     print("can move once")
+
+    def displayMoveOption(self,squareNumber):
+        self.setSquarePiece(squareNumber,"disc")
+
+    def checkIfPiece(self,squareNumber):
+        if self.squares[squareNumber].pieceName is None:
+            return False
+        else:
+            return self.squares[squareNumber].pieceName
+
+
 
     def updateSelection(self,newSelectedSquare):
         if newSelectedSquare.selected == False:
             if self.selectedSquare:
+                self.selectedSquare.selected = False
                 if self.selectedSquare.colour == "white":
                     self.selectedSquare.setStyleSheet("background-color:#eeeed2; border: 1px solid black;")
                 else:
@@ -94,8 +126,11 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             newSelectedSquare.selected = True
             newSelectedSquare.setStyleSheet("background-color:#BACA2B;")
             self.selectedSquare = newSelectedSquare
-            self.showMoves(newSelectedSquare)
 
+    def deleteShownMoves(self):
+        for i in range(len(self.squares)):
+            if self.squares[i].pieceName == "disc":
+                self.setSquarePiece(i,False)
 
     def mousePressEvent(self,e):
         x = e.x()
