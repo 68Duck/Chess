@@ -9,6 +9,13 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         self.setupUi(self)
         self.initUI()
         self.setupPieces()
+        self.bKingMoved = False
+        self.wKingMoved = False
+        self.lbRookMoved = False
+        self.rbRookMoved = False
+        self.lwRookMoved = False
+        self.rwRookMoved = False
+        self.check = False
 
     def initUI(self):
         self.selectedSquare = None
@@ -80,6 +87,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         self.newSquare = QLabel(self,alignment=Qt.AlignCenter)
         self.newSquare.setFixedSize(width,height)
         self.newSquare.move(startX+width*x,startY+height*y)
+        self.newSquare.castling = False
         self.newSquare.pieceName = None
         self.newSquare.selected = False
         # self.newSquare.clicked.connect(self.squareClicked)
@@ -104,12 +112,13 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         if self.squares[squareNumber] in self.takeableSquares:
             self.movePiece(squareNumber)
             return
-        self.deleteShownMoves()
         if pieceName == "disc":
             self.movePiece(squareNumber)
+            self.deleteShownMoves()
             return
 
         elif square.pieceName != None:
+            self.deleteShownMoves()
             self.updateSelection(square)
             if self.whiteTurn:
                 if pieceColour == "white":
@@ -124,14 +133,13 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
 
     def movePiece(self,squareNumber):
         pieceName = self.selectedSquare.pieceName
+        if pieceName[len(pieceName)-1:len(pieceName)] == "W":
+            colour = "white"
+        else:
+            colour = "black"
         promoted = False
         if squareNumber % 8 == 0 or squareNumber % 8 == 7:
             if pieceName[0:4] == "pawn":
-                print("test")
-                if pieceName[4:5] == "W":
-                    colour = "white"
-                else:
-                    colour = "black"
                 self.promotePawn(squareNumber,colour)
                 promoted = True
         self.selectedSquare.clear()
@@ -142,7 +150,45 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             self.selectedSquare.setStyleSheet("background-color:#769656; border: 1px solid black;")
         if not promoted:
             self.setSquarePiece(squareNumber,pieceName)
+
+        if self.squares[squareNumber].castling == True:
+            if squareNumber == 15:
+                self.squares[7].clear()
+                self.squares[7].pieceName = None
+                self.setSquarePiece(23,"rookW")
+            elif squareNumber == 47:
+                self.squares[63].clear()
+                self.squares[63].pieceName = None
+                self.setSquarePiece(39,"rookW")
+            elif squareNumber == 8:
+                self.squares[0].clear()
+                self.squares[0].pieceName = None
+                self.setSquarePiece(16,"rookB")
+            elif squareNumber == 40:
+                self.squares[56].clear()
+                self.squares[56].pieceName = None
+                self.setSquarePiece(32,"rookB")
         self.deleteShownMoves()
+        if pieceName[0:4] == "king":
+            if colour == "white":
+                self.wKingMoved = True
+            else:
+                self.bKingMoved = True
+        if pieceName[0:4] == "rook":
+            for i in range(len(self.squares)):
+                if self.selectedSquare == self.squares[i]:
+                    initialLocation = i
+            if colour == "white":
+                if initialLocation == 7:
+                    self.lwRookMoved = True
+                else:
+                    self.rwRookMoved = True
+            else:
+                if initialLocation == 0:
+                    self.rbRookMoved = True #r is right as if facing as black
+                else:
+                    self.lbRookMoved = True
+
         self.whiteTurn = not self.whiteTurn
 
 
@@ -215,6 +261,24 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     if not twoRight:
                         self.displayMoveOption(squareNumber+17,pieceName)
         if pieceName[0:4] == "king":
+            if colour == "white":
+                if not self.check:
+                    if self.wKingMoved == False:
+                        if self.lwRookMoved == False:
+                            if not self.checkIfPiece(15) and not self.checkIfPiece(23):
+                                self.displayMoveOption(15,pieceName,castling=True)
+                        if self.rwRookMoved == False:
+                            if not self.checkIfPiece(39) and not self.checkIfPiece(47) and not self.checkIfPiece(55):
+                                self.displayMoveOption(47,pieceName,castling=True)
+            else:
+                if self.bKingMoved == False:
+                    if self.lbRookMoved == False:
+                        if not self.checkIfPiece(48) and not self.checkIfPiece(40) and not self.checkIfPiece(32):
+                            self.displayMoveOption(40,pieceName,castling=True)
+                    if self.rbRookMoved == False:
+                        if not self.checkIfPiece(8) and not self.checkIfPiece(16):
+                            self.displayMoveOption(8,pieceName,castling=True)
+
             if not left:
                 self.displayMoveOption(squareNumber-8,pieceName)
                 if not top:
@@ -231,6 +295,8 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 self.displayMoveOption(squareNumber-1,pieceName)
             if not bottom:
                 self.displayMoveOption(squareNumber+1,pieceName)
+
+
         if pieceName[0:4] == "rook":
             row = squareNumber % 8 #will return 0-7
             for i in range(row):
@@ -243,7 +309,6 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     break
             column = squareNumber//8
             for i in range(column):
-                print(squareNumber-8*(i))
                 valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
                 if not valid:
                     break
@@ -331,7 +396,6 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if not valid:
                     break
             for i in range(column):
-                print(squareNumber-8*(i))
                 valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
                 if not valid:
                     break
@@ -342,29 +406,32 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
 
 
     def displayIfTakeable(self,squareNumber,currentPiece):
-        piece = self.checkIfPiece(squareNumber)
-        if piece == False:
-            return False
-        else:
-            if piece[len(piece)-1:len(piece)]=="W":
-                if currentPiece[len(currentPiece)-1:len(currentPiece)] == "B":
-                    self.addTakeableView(squareNumber)
-                    return True
-                else:
-                    return False
+        if squareNumber >= 0 and squareNumber < 64:
+            piece = self.checkIfPiece(squareNumber)
+            if piece == False:
+                return False
             else:
-                if currentPiece[len(currentPiece)-1:len(currentPiece)] == "W":
-                    self.addTakeableView(squareNumber)
-                    return True
+                if piece[len(piece)-1:len(piece)]=="W":
+                    if currentPiece[len(currentPiece)-1:len(currentPiece)] == "B":
+                        self.addTakeableView(squareNumber)
+                        return True
+                    else:
+                        return False
                 else:
-                    return False
+                    if currentPiece[len(currentPiece)-1:len(currentPiece)] == "W":
+                        self.addTakeableView(squareNumber)
+                        return True
+                    else:
+                        return False
 
 
-    def displayMoveOption(self,squareNumber,currentPiece):
+    def displayMoveOption(self,squareNumber,currentPiece,castling=False):
         piece = self.checkIfPiece(squareNumber)
         if piece == False:
             self.setSquarePiece(squareNumber,"disc")
             self.squares[squareNumber].pieceName="disc"
+            if castling:
+                self.squares[squareNumber].castling = True
             return True
         else:
             # print(piece[len(piece)-1:len(piece)])
@@ -400,9 +467,6 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             self.setSquarePiece(squareNumber,"queenB")
 
 
-
-
-
     def updateSelection(self,newSelectedSquare):
         if newSelectedSquare.selected == False:
             if self.selectedSquare:
@@ -425,6 +489,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             if self.squares[i].pieceName == "disc":
                 self.setSquarePiece(i,False)
                 self.squares[i].pieceName=None
+                self.squares[i].castling = False
 
         for square in self.takeableSquares:
             if square.colour == "white":
