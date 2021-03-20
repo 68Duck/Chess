@@ -94,10 +94,13 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
     def squareClicked(self,squareNumber):
         square = self.squares[squareNumber]
         pieceName = square.pieceName
-        if pieceName[len(pieceName)-1:len(pieceName)] == "W":
-            pieceColour = "white"
+        if pieceName is None:
+            pass
         else:
-            pieceColour = "black"
+            if pieceName[len(pieceName)-1:len(pieceName)] == "W":
+                pieceColour = "white"
+            else:
+                pieceColour = "black"
         if self.squares[squareNumber] in self.takeableSquares:
             self.movePiece(squareNumber)
             return
