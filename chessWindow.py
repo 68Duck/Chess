@@ -188,11 +188,10 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     self.rbRookMoved = True #r is right as if facing as black
                 else:
                     self.lbRookMoved = True
-
         self.whiteTurn = not self.whiteTurn
 
-
-    def showMoves(self,square,pieceName,squareNumber):
+    def virtualGetPossibleMoves(self,squareNumber,pieceName,board):
+        self.moves = []
         falses = []
         for i in range(8):
             falses.append(False)
@@ -219,102 +218,116 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             colour = "white"
         if pieceName[0:4] == "pawn":
             if colour == "white":
-                valid = self.displayMoveOption(squareNumber-1,pieceName)
+                piece = self.virtualCheckIfPiece(squareNumber-1,board)
+                if piece == False:
+                    valid = True
+                else:
+                    valid = False
+                self.moves.append(squareNumber-1)
                 if squareNumber%8==6 and valid:
-                    self.displayMoveOption(squareNumber-2,pieceName)
+                    self.moves.append(squareNumber-2)
                     # print("can move twice")
-                self.displayIfTakeable(squareNumber-9,pieceName)
-                self.displayIfTakeable(squareNumber+7,pieceName)
+                self.moves.append([squareNumber-9,"pawn"])
+                self.moves.append([squareNumber+7,"pawn"])
 
             else: #so black pawn
                 if squareNumber * 8 == 7:
                     self.promotePawn(squareNumber,colour)
                     return
-                valid = self.displayMoveOption(squareNumber+1,pieceName)
+                piece = self.virtualCheckIfPiece(squareNumber+1,board)
+                if piece == False:
+                    valid = True
+                else:
+                    valid = False
+                self.moves.append(squareNumber+1)
                 if squareNumber%8==1 and valid:
-                    self.displayMoveOption(squareNumber+2,pieceName)
-                    # print("can move twice")
-                self.displayIfTakeable(squareNumber+9,pieceName)
-                self.displayIfTakeable(squareNumber-7,pieceName)
+                    self.moves.append(squareNumber+2)
+                self.moves.append([squareNumber+9,"pawn"])
+                self.moves.append([squareNumber-7,"pawn"])
         if pieceName[0:6] == "knight":
 
             if not left:
                 if not top:
                     if not twoTop:
-                        self.displayMoveOption(squareNumber-10,pieceName)
+                        self.moves.append(squareNumber-10)
                     if not twoLeft:
-                        self.displayMoveOption(squareNumber-17,pieceName)
+                        self.moves.append(squareNumber-17)
                 if not bottom:
                     if not twoBottom:
-                        self.displayMoveOption(squareNumber-6,pieceName)
+                        self.moves.append(squareNumber-6)
                     if not twoLeft:
-                        self.displayMoveOption(squareNumber-15,pieceName)
+                        self.moves.append(squareNumber-15)
             if not right:
                 if not top:
                     if not twoTop:
-                        self.displayMoveOption(squareNumber+6,pieceName)
+                        self.moves.append(squareNumber+6)
                     if not twoRight:
-                        self.displayMoveOption(squareNumber+15,pieceName)
+                        self.moves.append(squareNumber+15)
                 if not bottom:
                     if not twoBottom:
-                        self.displayMoveOption(squareNumber+10,pieceName)
+                        self.moves.append(squareNumber+10)
                     if not twoRight:
-                        self.displayMoveOption(squareNumber+17,pieceName)
+                        self.moves.append(squareNumber+17)
         if pieceName[0:4] == "king":
             if colour == "white":
                 if not self.check:
                     if self.wKingMoved == False:
                         if self.lwRookMoved == False:
-                            if not self.checkIfPiece(15) and not self.checkIfPiece(23):
-                                self.displayMoveOption(15,pieceName,castling=True)
+                            if not self.virtualCheckIfPiece(15,board) and not self.virtualCheckIfPiece(23,board):
+                                self.moves.append([15,"castling"])
                         if self.rwRookMoved == False:
-                            if not self.checkIfPiece(39) and not self.checkIfPiece(47) and not self.checkIfPiece(55):
-                                self.displayMoveOption(47,pieceName,castling=True)
+                            if not self.virtualCheckIfPiece(39,board) and not self.virtualCheckIfPiece(47,board) and not self.virtualCheckIfPiece(55,board):
+                                self.moves.append([47,"castling"])
             else:
                 if self.bKingMoved == False:
                     if self.lbRookMoved == False:
-                        if not self.checkIfPiece(48) and not self.checkIfPiece(40) and not self.checkIfPiece(32):
-                            self.displayMoveOption(40,pieceName,castling=True)
+                        if not self.virtualCheckIfPiece(48,board) and not self.virtualCheckIfPiece(40,board) and not self.virtualCheckIfPiece(32,board):
+                            self.moves.append([40,"castling"])
                     if self.rbRookMoved == False:
-                        if not self.checkIfPiece(8) and not self.checkIfPiece(16):
-                            self.displayMoveOption(8,pieceName,castling=True)
+                        if not self.virtualCheckIfPiece(8,board) and not self.virtualCheckIfPiece(16,board):
+                            self.moves.append([8,"castling"])
 
             if not left:
-                self.displayMoveOption(squareNumber-8,pieceName)
+                self.moves.append(squareNumber-8)
                 if not top:
-                    self.displayMoveOption(squareNumber-9,pieceName)
+                    self.moves.append(squareNumber-9)
                 if not bottom:
-                    self.displayMoveOption(squareNumber-7,pieceName)
+                    self.moves.append(squareNumber-7)
             if not right:
-                self.displayMoveOption(squareNumber+8,pieceName)
+                self.moves.append(squareNumber+8)
                 if not top:
-                    self.displayMoveOption(squareNumber+7,pieceName)
+                    self.moves.append(squareNumber+7)
                 if not bottom:
-                    self.displayMoveOption(squareNumber+9,pieceName)
+                    self.moves.append(squareNumber+9)
             if not top:
-                self.displayMoveOption(squareNumber-1,pieceName)
+                self.moves.append(squareNumber-1)
             if not bottom:
-                self.displayMoveOption(squareNumber+1,pieceName)
+                self.moves.append(squareNumber+1)
+
 
 
         if pieceName[0:4] == "rook":
             row = squareNumber % 8 #will return 0-7
             for i in range(row):
-                valid = self.displayMoveOption(squareNumber-i-1,pieceName)
-                if not valid:
+                self.moves.append(squareNumber-i-1)
+                valid = self.virtualCheckIfPiece(squareNumber-i-1,board)
+                if valid:
                     break
             for i in range(7-row):
-                valid = self.displayMoveOption(squareNumber+i+1,pieceName)
-                if not valid:
+                self.moves.append(squareNumber+i+1)
+                valid = self.virtualCheckIfPiece(squareNumber+i+1,board)
+                if valid:
                     break
             column = squareNumber//8
             for i in range(column):
-                valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
-                if not valid:
+                self.moves.append(squareNumber-8*(i+1))
+                valid = self.virtualCheckIfPiece(squareNumber-8*(i+1),board)
+                if valid:
                     break
             for i in range(7-column):
-                valid = self.displayMoveOption(squareNumber+8*(i+1),pieceName)
-                if not valid:
+                self.moves.append(squareNumber+8*(i+1))
+                valid = self.virtualCheckIfPiece(squareNumber+8*(i+1),board)
+                if valid:
                     break
         if pieceName[0:6] == "bishop":
             row = squareNumber % 8
@@ -324,32 +337,36 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if displaySquare < 0 or displaySquare % 8 == 0:
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber-9*(i+1)
                 if displaySquare < 0 or displaySquare % 8 == 7:
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber+7*(i+1)
                 if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber+9*(i+1)
                 if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
 
         if pieceName[0:5] == "queen":
@@ -360,49 +377,315 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if displaySquare < 0 or displaySquare % 8 == 0:
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber-9*(i+1)
                 if displaySquare < 0 or displaySquare % 8 == 7:
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber+7*(i+1)
                 if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
             for i in range(7):
                 displaySquare = squareNumber+9*(i+1)
                 if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
                     break
                 else:
-                    valid = self.displayMoveOption(displaySquare,pieceName)
-                    if not valid:
+                    self.moves.append(displaySquare)
+                    piece = self.virtualCheckIfPiece(displaySquare,board)
+                    if piece:
                         break
+            row = squareNumber % 8 #will return 0-7
             for i in range(row):
-                valid = self.displayMoveOption(squareNumber-i-1,pieceName)
-                if not valid:
+                self.moves.append(squareNumber-i-1)
+                valid = self.virtualCheckIfPiece(squareNumber-i-1,board)
+                if valid:
                     break
             for i in range(7-row):
-                valid = self.displayMoveOption(squareNumber+i+1,pieceName)
-                if not valid:
+                self.moves.append(squareNumber+i+1)
+                valid = self.virtualCheckIfPiece(squareNumber+i+1,board)
+                if valid:
                     break
+            column = squareNumber//8
             for i in range(column):
-                valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
-                if not valid:
+                self.moves.append(squareNumber-8*(i+1))
+                valid = self.virtualCheckIfPiece(squareNumber-8*(i+1),board)
+                if valid:
                     break
             for i in range(7-column):
-                valid = self.displayMoveOption(squareNumber+8*(i+1),pieceName)
-                if not valid:
+                self.moves.append(squareNumber+8*(i+1))
+                valid = self.virtualCheckIfPiece(squareNumber+8*(i+1),board)
+                if valid:
                     break
+        return self.moves
+
+
+    def getPossibleMoves(self,squareNumber,pieceName):
+        self.moves = []
+        falses = []
+        for i in range(8):
+            falses.append(False)
+        left,right,top,bottom,twoLeft,twoRight,twoTop,twoBottom = falses
+        if squareNumber >= 8 and squareNumber < 16:
+            twoLeft = True
+        if squareNumber < 56 and squareNumber >= 48:
+            twoRight = True
+        if squareNumber % 8 == 1:
+            twoTop = True
+        if squareNumber % 8 == 6:
+            twoBottom = True
+        if squareNumber < 8:
+            left = True
+        if squareNumber >= 56:
+            right = True
+        if squareNumber % 8 == 0:
+            top = True
+        if squareNumber % 8 == 7:
+            bottom = True
+        if pieceName[len(pieceName)-1:len(pieceName)] == "B": #black piece
+            colour = "black"
+        else: #white piece
+            colour = "white"
+        if pieceName[0:4] == "pawn":
+            if colour == "white":
+                piece = self.checkIfPiece(squareNumber-1)
+                if piece == False:
+                    valid = True
+                else:
+                    valid = False
+                self.moves.append(squareNumber-1)
+                if squareNumber%8==6 and valid:
+                    self.moves.append(squareNumber-2)
+                    # print("can move twice")
+                self.moves.append([squareNumber-9,"pawn"])
+                self.moves.append([squareNumber+7,"pawn"])
+
+            else: #so black pawn
+                if squareNumber * 8 == 7:
+                    self.promotePawn(squareNumber,colour)
+                    return
+                piece = self.checkIfPiece(squareNumber+1)
+                if piece == False:
+                    valid = True
+                else:
+                    valid = False
+                self.moves.append(squareNumber+1)
+                if squareNumber%8==1 and valid:
+                    self.moves.append(squareNumber+2)
+                self.moves.append([squareNumber+9,"pawn"])
+                self.moves.append([squareNumber-7,"pawn"])
+        if pieceName[0:6] == "knight":
+
+            if not left:
+                if not top:
+                    if not twoTop:
+                        self.moves.append(squareNumber-10)
+                    if not twoLeft:
+                        self.moves.append(squareNumber-17)
+                if not bottom:
+                    if not twoBottom:
+                        self.moves.append(squareNumber-6)
+                    if not twoLeft:
+                        self.moves.append(squareNumber-15)
+            if not right:
+                if not top:
+                    if not twoTop:
+                        self.moves.append(squareNumber+6)
+                    if not twoRight:
+                        self.moves.append(squareNumber+15)
+                if not bottom:
+                    if not twoBottom:
+                        self.moves.append(squareNumber+10)
+                    if not twoRight:
+                        self.moves.append(squareNumber+17)
+        if pieceName[0:4] == "king":
+            if colour == "white":
+                if not self.check:
+                    if self.wKingMoved == False:
+                        if self.lwRookMoved == False:
+                            if not self.checkIfPiece(15) and not self.checkIfPiece(23):
+                                self.moves.append([15,"castling"])
+                        if self.rwRookMoved == False:
+                            if not self.checkIfPiece(39) and not self.checkIfPiece(47) and not self.checkIfPiece(55):
+                                self.moves.append([47,"castling"])
+            else:
+                if self.bKingMoved == False:
+                    if self.lbRookMoved == False:
+                        if not self.checkIfPiece(48) and not self.checkIfPiece(40) and not self.checkIfPiece(32):
+                            self.moves.append([40,"castling"])
+                    if self.rbRookMoved == False:
+                        if not self.checkIfPiece(8) and not self.checkIfPiece(16):
+                            self.moves.append([8,"castling"])
+
+            if not left:
+                self.moves.append(squareNumber-8)
+                if not top:
+                    self.moves.append(squareNumber-9)
+                if not bottom:
+                    self.moves.append(squareNumber-7)
+            if not right:
+                self.moves.append(squareNumber+8)
+                if not top:
+                    self.moves.append(squareNumber+7)
+                if not bottom:
+                    self.moves.append(squareNumber+9)
+            if not top:
+                self.moves.append(squareNumber-1)
+            if not bottom:
+                self.moves.append(squareNumber+1)
+
+
+
+        if pieceName[0:4] == "rook":
+            row = squareNumber % 8 #will return 0-7
+            for i in range(row):
+                self.moves.append(squareNumber-i-1)
+                valid = self.checkIfPiece(squareNumber-i-1)
+                if valid:
+                    break
+            for i in range(7-row):
+                self.moves.append(squareNumber+i+1)
+                valid = self.checkIfPiece(squareNumber+i+1)
+                if valid:
+                    break
+            column = squareNumber//8
+            for i in range(column):
+                self.moves.append(squareNumber-8*(i+1))
+                valid = self.checkIfPiece(squareNumber-8*(i+1))
+                if valid:
+                    break
+            for i in range(7-column):
+                self.moves.append(squareNumber+8*(i+1))
+                valid = self.checkIfPiece(squareNumber+8*(i+1))
+                if valid:
+                    break
+        if pieceName[0:6] == "bishop":
+            row = squareNumber % 8
+            column = squareNumber // 8
+            for i in range(7):
+                displaySquare = squareNumber-7*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 0:
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber-9*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 7:
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+7*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+9*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+
+        if pieceName[0:5] == "queen":
+            row = squareNumber % 8
+            column = squareNumber // 8
+            for i in range(7):
+                displaySquare = squareNumber-7*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 0:
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber-9*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 7:
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+7*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+9*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
+                    break
+                else:
+                    self.moves.append(displaySquare)
+                    piece = self.checkIfPiece(displaySquare)
+                    if piece:
+                        break
+            row = squareNumber % 8 #will return 0-7
+            for i in range(row):
+                self.moves.append(squareNumber-i-1)
+                valid = self.checkIfPiece(squareNumber-i-1)
+                if valid:
+                    break
+            for i in range(7-row):
+                self.moves.append(squareNumber+i+1)
+                valid = self.checkIfPiece(squareNumber+i+1)
+                if valid:
+                    break
+            column = squareNumber//8
+            for i in range(column):
+                self.moves.append(squareNumber-8*(i+1))
+                valid = self.checkIfPiece(squareNumber-8*(i+1))
+                if valid:
+                    break
+            for i in range(7-column):
+                self.moves.append(squareNumber+8*(i+1))
+                valid = self.checkIfPiece(squareNumber+8*(i+1))
+                if valid:
+                    break
+        return self.moves
+
+    def showMoves(self,square,pieceName,squareNumber):
+        moves = self.getPossibleMoves(squareNumber,pieceName)
+        for move in moves:
+            try:
+                if len(move) > 1:
+                    if move[1] == "castling":
+                        self.displayMoveOption(move[0],pieceName,castling=True)
+                    elif move[1] == "pawn":
+                        self.displayIfTakeable(move[0],pieceName)
+            except:
+                self.displayMoveOption(move,pieceName)
 
 
     def displayIfTakeable(self,squareNumber,currentPiece):
@@ -428,6 +711,9 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
     def displayMoveOption(self,squareNumber,currentPiece,castling=False):
         piece = self.checkIfPiece(squareNumber)
         if piece == False:
+            self.check = self.checkIfCheck(squareNumber,currentPiece)
+            if self.check:
+                return False
             self.setSquarePiece(squareNumber,"disc")
             self.squares[squareNumber].pieceName="disc"
             if castling:
@@ -438,6 +724,9 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             if piece[len(piece)-1:len(piece)]=="W":
                 if currentPiece[len(currentPiece)-1:len(currentPiece)] == "B":
                     if currentPiece[0:4] != "pawn":
+                        self.check = self.checkIfCheck(squareNumber,currentPiece)
+                        if self.check:
+                            return False
                         self.addTakeableView(squareNumber)
                     return False #returns false meaning cannot move beyond here
                 else:
@@ -447,6 +736,9 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if currentPiece[len(currentPiece)-1:len(currentPiece)] == "W":
                     # self.addRing(squareNumber)
                     if currentPiece[0:4] != "pawn":
+                        self.check = self.checkIfCheck(squareNumber,currentPiece)
+                        if self.check:
+                            return False
                         self.addTakeableView(squareNumber)
                     return False #returns false meaning cannot move beyond here
                 else:
@@ -458,6 +750,96 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             return False
         else:
             return self.squares[squareNumber].pieceName
+
+    def virtualCheckIfPiece(self,squareNumber,board):
+        if board[squareNumber] is None:
+            return False
+        else:
+            return board[squareNumber]
+
+    def checkIfCheck(self,squareNumber,currentPiece):
+        currentBoard = []
+        for square in self.squares:
+            if square.pieceName == "disc":
+                currentBoard.append(None)
+            else:
+                currentBoard.append(square.pieceName)
+        for i in range(len(self.squares)):
+            if self.squares[i] == self.selectedSquare:
+                selectedSqr = i
+        currentBoard[selectedSqr] = None
+        currentBoard[squareNumber] = currentPiece
+        totalMoves = []
+
+
+        for i in range(len(currentBoard)):
+            # square = self.squares[i]
+            pieceName = currentBoard[i]
+            if pieceName != None:
+                if pieceName[len(pieceName)-1:len(pieceName)] == "W":
+                    pieceColour = "white"
+                elif pieceName[len(pieceName)-1:len(pieceName)] == "B":
+                    pieceColour = "black"
+                else:
+                    pass #therefore a disc
+                if self.whiteTurn:
+                    if pieceColour == "black":
+                        moves = self.virtualGetPossibleMoves(i,pieceName,currentBoard)
+                        movesToRemove = []
+                        for move in moves:
+                            try:
+                                if len(move)>1:
+                                    movesToRemove.append(move)
+                            except:
+                                piece = self.virtualCheckIfPiece(move,currentBoard)
+                                if piece is False:
+                                    virtualPieceColour = None
+                                else:
+                                    virtualPieceColour = piece[len(piece)-1:len(piece)]
+                                if piece != False and virtualPieceColour == "B":
+                                    movesToRemove.append(move)
+                        for move in movesToRemove:
+                            moves.remove(move)
+                        for move in moves:
+                            totalMoves.append(move)
+                else:
+                    if pieceColour == "white":
+                        moves = self.virtualGetPossibleMoves(i,pieceName,currentBoard)
+                        movesToRemove = []
+                        for move in moves:
+                            try:
+                                if len(move)>1:
+                                    movesToRemove.append(move)
+                            except:
+                                piece = self.virtualCheckIfPiece(move,currentBoard)
+                                if piece is False:
+                                    virtualPieceColour = None
+                                else:
+                                    virtualPieceColour = piece[len(piece)-1:len(piece)]
+
+                                if piece != False and virtualPieceColour == "W":
+                                    movesToRemove.append(move)
+                        for move in movesToRemove:
+                            moves.remove(move)
+                        for move in moves:
+                            totalMoves.append(move)
+        if self.whiteTurn:
+            for i in range(len(currentBoard)):
+                pieceName = currentBoard[i]
+                if pieceName == "kingW":
+                    kingSquare = i
+            if kingSquare in totalMoves:
+                print("check")
+                return True
+        else:
+            for i in range(len(currentBoard)):
+                pieceName = currentBoard[i]
+                if pieceName == "kingB":
+                    kingSquare = i
+            if kingSquare in totalMoves:
+                print("check")
+                return True
+        return False
 
     def promotePawn(self,squareNumber,colour):
         #add choose ability so not just queen
