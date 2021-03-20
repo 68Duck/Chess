@@ -199,6 +199,117 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 self.displayMoveOption(squareNumber-1,pieceName)
             if not bottom:
                 self.displayMoveOption(squareNumber+1,pieceName)
+        if pieceName[0:4] == "rook":
+            row = squareNumber % 8 #will return 0-7
+            for i in range(row):
+                valid = self.displayMoveOption(squareNumber-i-1,pieceName)
+                if not valid:
+                    break
+            for i in range(7-row):
+                valid = self.displayMoveOption(squareNumber+i+1,pieceName)
+                if not valid:
+                    break
+            column = squareNumber//8
+            for i in range(column):
+                print(squareNumber-8*(i))
+                valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
+                if not valid:
+                    break
+            for i in range(7-column):
+                valid = self.displayMoveOption(squareNumber+8*(i+1),pieceName)
+                if not valid:
+                    break
+        if pieceName[0:6] == "bishop":
+            row = squareNumber % 8
+            column = squareNumber // 8
+            for i in range(7):
+                displaySquare = squareNumber-7*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 0:
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber-9*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 7:
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+7*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+9*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+
+        if pieceName[0:5] == "queen":
+            row = squareNumber % 8
+            column = squareNumber // 8
+            for i in range(7):
+                displaySquare = squareNumber-7*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 0:
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber-9*(i+1)
+                if displaySquare < 0 or displaySquare % 8 == 7:
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+7*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 7:#7 as checks if moved around to the bottom
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(7):
+                displaySquare = squareNumber+9*(i+1)
+                if displaySquare > 63 or displaySquare % 8 == 0: #0 as checks if moved around to the top
+                    break
+                else:
+                    valid = self.displayMoveOption(displaySquare,pieceName)
+                    if not valid:
+                        break
+            for i in range(row):
+                valid = self.displayMoveOption(squareNumber-i-1,pieceName)
+                if not valid:
+                    break
+            for i in range(7-row):
+                valid = self.displayMoveOption(squareNumber+i+1,pieceName)
+                if not valid:
+                    break
+            for i in range(column):
+                print(squareNumber-8*(i))
+                valid = self.displayMoveOption(squareNumber-8*(i+1),pieceName)
+                if not valid:
+                    break
+            for i in range(7-column):
+                valid = self.displayMoveOption(squareNumber+8*(i+1),pieceName)
+                if not valid:
+                    break
+
+
+
 
 
     def displayMoveOption(self,squareNumber,currentPiece):
@@ -211,7 +322,8 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             # print(piece[len(piece)-1:len(piece)])
             if piece[len(piece)-1:len(piece)]=="W":
                 if currentPiece[len(currentPiece)-1:len(currentPiece)] == "B":
-                    return True
+                    self.addTakeableView(squareNumber)
+                    return False #returns false meaning cannot move beyond here
                 else:
                     return False
             else:
@@ -219,7 +331,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if currentPiece[len(currentPiece)-1:len(currentPiece)] == "W":
                     # self.addRing(squareNumber)
                     self.addTakeableView(squareNumber)
-                    return True
+                    return False #returns false meaning cannot move beyond here
                 else:
                     return False
 
