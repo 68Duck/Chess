@@ -21,15 +21,15 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         self.gameOver = False
 
     def initUI(self):
-        self.whiteTime = 300
-        self.blackTime = 300
-        self.whiteTimer.display(self.convertSecondsToMMSS(self.whiteTime))
-        self.blackTimer.display(self.convertSecondsToMMSS(self.blackTime))
+        self.whiteTime = 300*100
+        self.blackTime = 300*100
+        self.whiteTimer.display(self.convertMilisecondsToMMSS(self.whiteTime))
+        self.blackTimer.display(self.convertMilisecondsToMMSS(self.blackTime))
         self.whiteTurn = False
         self.changeTurn()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.decrimentTimer)
-        self.timer.start(1000)
+        self.timer.start(10)
         self.selectedSquare = None
         self.squares = []
         self.takeableSquares = []
@@ -58,7 +58,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             else:
                 if not self.gameOver:
                     self.whiteTime -= 1
-                    self.whiteTimer.display(self.convertSecondsToMMSS(self.whiteTime))
+                    self.whiteTimer.display(self.convertMilisecondsToMMSS(self.whiteTime))
         else:
             if self.blackTime == 0 and not self.gameOver:
                 self.gameOver = True
@@ -66,11 +66,12 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             else:
                 if not self.gameOver:
                     self.blackTime -= 1
-                    self.blackTimer.display(self.convertSecondsToMMSS(self.blackTime))
+                    self.blackTimer.display(self.convertMilisecondsToMMSS(self.blackTime))
 
-    def convertSecondsToMMSS(self,time):
-        mins = time // 60
-        secs = time % 60
+    def convertMilisecondsToMMSS(self,time):
+        mins = time // 6000
+        secs = time % 6000
+        secs = secs//100
         if secs < 10:
             secs = "0" + str(secs)
         return str(mins)+":"+str(secs)

@@ -20,9 +20,9 @@
    <widget class="QLCDNumber" name="whiteTimer">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>660</x>
       <y>630</y>
-      <width>81</width>
+      <width>111</width>
       <height>31</height>
      </rect>
     </property>
@@ -39,9 +39,9 @@ color:black;
    <widget class="QLCDNumber" name="blackTimer">
     <property name="geometry">
      <rect>
-      <x>690</x>
+      <x>670</x>
       <y>30</y>
-      <width>81</width>
+      <width>101</width>
       <height>31</height>
      </rect>
     </property>
