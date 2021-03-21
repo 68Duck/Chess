@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import*
 from PyQt5.QtGui import*
 from PyQt5.QtCore import*
 
+from messageWindow import MessageWindow
+
 class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
     def __init__(self):
         super().__init__()
@@ -16,10 +18,18 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         self.lwRookMoved = False
         self.rwRookMoved = False
         self.check = False
+        self.gameOver = False
 
     def initUI(self):
-        self.selectedSquare = None
+        self.whiteTime = 300
+        self.blackTime = 2
+        self.whiteTimer.display(self.convertSecondsToMMSS(self.whiteTime))
+        self.blackTimer.display(self.convertSecondsToMMSS(self.blackTime))
         self.whiteTurn = True
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.decrimentTimer)
+        self.timer.start(1000)
+        self.selectedSquare = None
         self.squares = []
         self.takeableSquares = []
         self.startX = 50
@@ -29,6 +39,32 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         for i in range(8):
             for j in range(8):
                 self.createSquare(self.startX,self.startY,self.width,self.height,i,j)
+
+    def decrimentTimer(self):
+        if self.whiteTurn:
+            if self.whiteTime == 0 and not self.gameOver:
+                self.messageWindow = MessageWindow("Black wins on time!")
+                self.gameOver = True
+            else:
+                if not self.gameOver:
+                    self.whiteTime -= 1
+                    self.whiteTimer.display(self.convertSecondsToMMSS(self.whiteTime))
+        else:
+            if self.blackTime == 0 and not self.gameOver:
+                self.gameOver = True
+                self.messageWindow = MessageWindow("White wins on time!")
+            else:
+                if not self.gameOver:
+                    self.blackTime -= 1
+                    self.blackTimer.display(self.convertSecondsToMMSS(self.blackTime))
+
+    def convertSecondsToMMSS(self,time):
+        mins = time // 60
+        secs = time % 60
+        if secs < 10:
+            secs = "0" + str(secs)
+        return str(mins)+":"+str(secs)
+
 
     def setupPieces(self):
         for i in range(8):
