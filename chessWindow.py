@@ -898,6 +898,8 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                             try:
                                 if len(move)>1:
                                     movesToRemove.append(move)
+                                    if move[0] >= 0 and move[0] < 64:
+                                        moves.append(move[0])
                             except:
                                 piece = self.virtualCheckIfPiece(move,currentBoard)
                                 if piece is False:
@@ -918,6 +920,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                             try:
                                 if len(move)>1:
                                     movesToRemove.append(move)
+                                    moves.append(moves[0])
                             except:
                                 piece = self.virtualCheckIfPiece(move,currentBoard)
                                 if piece is False:
