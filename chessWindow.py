@@ -22,10 +22,11 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
 
     def initUI(self):
         self.whiteTime = 300
-        self.blackTime = 2
+        self.blackTime = 300
         self.whiteTimer.display(self.convertSecondsToMMSS(self.whiteTime))
         self.blackTimer.display(self.convertSecondsToMMSS(self.blackTime))
-        self.whiteTurn = True
+        self.whiteTurn = False
+        self.changeTurn()
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.decrimentTimer)
         self.timer.start(1000)
@@ -39,6 +40,15 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         for i in range(8):
             for j in range(8):
                 self.createSquare(self.startX,self.startY,self.width,self.height,i,j)
+
+    def changeTurn(self):
+        if self.whiteTurn:
+            self.whiteTimer.setStyleSheet("background-color:#999;")
+            self.blackTimer.setStyleSheet("background-color:black")
+        else:
+            self.blackTimer.setStyleSheet("background-color:#222")
+            self.whiteTimer.setStyleSheet("background-color:white;")
+        self.whiteTurn = not self.whiteTurn
 
     def decrimentTimer(self):
         if self.whiteTurn:
@@ -224,7 +234,68 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     self.rbRookMoved = True #r is right as if facing as black
                 else:
                     self.lbRookMoved = True
-        self.whiteTurn = not self.whiteTurn
+        self.changeTurn()
+
+        checkMate = self.checkIfMate()
+        if checkMate == True:
+            self.messageWindow = MessageWindow("Checkmate!")
+            self.gameOver = True
+
+    def checkIfMate(self):
+        for i in range(len(self.squares)):
+            square = self.squares[i]
+            pieceName = square.pieceName
+            if pieceName is None:
+                pass
+            else:
+                if pieceName[len(pieceName)-1:len(pieceName)] == "W":
+                    colour = "white"
+                else:
+                    colour = "black"
+                if (colour == "white" and self.whiteTurn) or (colour == "black" and not self.whiteTurn):
+                    moves = self.getPossibleMoves(i,pieceName)
+                    for move in moves:
+                        try:
+                            if len(move) > 1:
+                                if move[1] == "pawn":
+                                    if i >= 0 and i < 64:
+                                        piece = self.checkIfPiece(i)
+                                        if piece == False:
+                                            pass
+                                        else:
+                                            if piece[len(piece)-1:len(piece)]=="W":
+                                                if colour == "black":
+                                                    return False
+                                            else:
+                                                if colour == "white":
+                                                    return False
+                        except:
+                            piece = self.checkIfPiece(move)
+                            if piece == False:
+                                self.check = self.checkIfCheck(i,pieceName)
+                                if self.check:
+                                    pass
+                                else:
+                                    return False
+                            else:
+                                if piece[len(piece)-1:len(piece)]=="W":
+                                    if pieceName[len(pieceName)-1:len(pieceName)] == "B":
+                                        if pieceName[0:4] != "pawn":
+                                            self.check = self.checkIfCheck(i,pieceName)
+                                            if self.check:
+                                                pass
+                                            else:
+                                                return False
+                                else:
+                                    if pieceName[len(pieceName)-1:len(pieceName)] == "W":
+                                        if pieceName[0:4] != "pawn":
+                                            self.check = self.checkIfCheck(i,pieceName)
+                                            if self.check:
+                                                pass
+                                            else:
+                                                return False
+        return True
+
 
     def virtualGetPossibleMoves(self,squareNumber,pieceName,board):
         self.moves = []
@@ -865,7 +936,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if pieceName == "kingW":
                     kingSquare = i
             if kingSquare in totalMoves:
-                print("check")
+                # print("check")
                 return True
         else:
             for i in range(len(currentBoard)):
@@ -873,7 +944,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if pieceName == "kingB":
                     kingSquare = i
             if kingSquare in totalMoves:
-                print("check")
+                # print("check")
                 return True
         return False
 
