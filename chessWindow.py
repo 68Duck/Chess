@@ -273,29 +273,27 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                         except:
                             piece = self.checkIfPiece(move)
                             if piece == False:
-                                self.check = self.checkIfCheck(i,pieceName)
-                                if self.check:
-                                    pass
-                                else:
+
+                                self.check = self.checkIfCheck(move,pieceName,i)
+                                if not self.check:
                                     return False
                             else:
                                 if piece[len(piece)-1:len(piece)]=="W":
                                     if pieceName[len(pieceName)-1:len(pieceName)] == "B":
                                         if pieceName[0:4] != "pawn":
-                                            self.check = self.checkIfCheck(i,pieceName)
-                                            if self.check:
-                                                pass
-                                            else:
+
+                                            self.check = self.checkIfCheck(move,pieceName,i)
+                                            # print(self.check,move,pieceName)
+                                            if not self.check:
                                                 return False
                                 else:
                                     if pieceName[len(pieceName)-1:len(pieceName)] == "W":
                                         if pieceName[0:4] != "pawn":
-                                            self.check = self.checkIfCheck(i,pieceName)
-                                            if self.check:
-                                                pass
-                                            else:
+                                            self.check = self.checkIfCheck(move,pieceName,i)
+                                            if not self.check:
                                                 return False
         return True
+
 
 
     def virtualGetPossibleMoves(self,squareNumber,pieceName,board):
@@ -865,20 +863,23 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
         else:
             return board[squareNumber]
 
-    def checkIfCheck(self,squareNumber,currentPiece):
+    def checkIfCheck(self,squareNumber,currentPiece,selectedSquareNumber = None):
         currentBoard = []
         for square in self.squares:
             if square.pieceName == "disc":
                 currentBoard.append(None)
             else:
                 currentBoard.append(square.pieceName)
-        for i in range(len(self.squares)):
-            if self.squares[i] == self.selectedSquare:
-                selectedSqr = i
+        if selectedSquareNumber is None:
+            for i in range(len(self.squares)):
+                if self.squares[i] == self.selectedSquare:
+                    selectedSqr = i
+        else:
+            selectedSqr = selectedSquareNumber
         currentBoard[selectedSqr] = None
         currentBoard[squareNumber] = currentPiece
         totalMoves = []
-
+        # print(currentBoard)
 
         for i in range(len(currentBoard)):
             # square = self.squares[i]
@@ -920,7 +921,8 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                             try:
                                 if len(move)>1:
                                     movesToRemove.append(move)
-                                    moves.append(moves[0])
+                                    if move[0] < 64 and move[0] >=0:
+                                        moves.append(move[0])
                             except:
                                 piece = self.virtualCheckIfPiece(move,currentBoard)
                                 if piece is False:
