@@ -49,6 +49,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
             self.blackTimer.setStyleSheet("background-color:#222")
             self.whiteTimer.setStyleSheet("background-color:white;")
         self.whiteTurn = not self.whiteTurn
+        self.checkMessageLabel.setText("")
 
     def decrimentTimer(self):
         if self.whiteTurn:
@@ -942,6 +943,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if pieceName == "kingW":
                     kingSquare = i
             if kingSquare in totalMoves:
+                self.checkMessageLabel.setText("Check!")
                 # print("check")
                 return True
         else:
@@ -950,6 +952,7 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                 if pieceName == "kingB":
                     kingSquare = i
             if kingSquare in totalMoves:
+                self.checkMessageLabel.setText("Check!")
                 # print("check")
                 return True
         return False

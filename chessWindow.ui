@@ -52,6 +52,22 @@ color:white;
 }</string>
     </property>
    </widget>
+   <widget class="QLabel" name="checkMessageLabel">
+    <property name="geometry">
+     <rect>
+      <x>680</x>
+      <y>300</y>
+      <width>81</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">QLabel{color:white;}</string>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -59,7 +75,7 @@ color:white;
      <x>0</x>
      <y>0</y>
      <width>808</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
   </widget>
