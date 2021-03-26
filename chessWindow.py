@@ -331,9 +331,9 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     valid = True
                 else:
                     valid = False
-                self.moves.append(squareNumber-1)
-                if squareNumber%8==6 and valid:
-                    self.moves.append(squareNumber-2)
+                # self.moves.append(squareNumber-1)
+                # if squareNumber%8==6 and valid:
+                #     self.moves.append(squareNumber-2)
                     # print("can move twice")
                 self.moves.append([squareNumber-9,"pawn"])
                 self.moves.append([squareNumber+7,"pawn"])
@@ -347,9 +347,9 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
                     valid = True
                 else:
                     valid = False
-                self.moves.append(squareNumber+1)
-                if squareNumber%8==1 and valid:
-                    self.moves.append(squareNumber+2)
+                # self.moves.append(squareNumber+1)
+                # if squareNumber%8==1 and valid:
+                #     self.moves.append(squareNumber+2)
                 self.moves.append([squareNumber+9,"pawn"])
                 self.moves.append([squareNumber-7,"pawn"])
         if pieceName[0:6] == "knight":
