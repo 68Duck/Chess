@@ -4,6 +4,7 @@ from PyQt5.QtGui import*
 from PyQt5.QtCore import*
 
 from messageWindow import MessageWindow
+from pawnPromotionWindow import PawnPromotionWindow
 
 class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
     def __init__(self):
@@ -959,10 +960,11 @@ class ChessWindow(QMainWindow,uic.loadUiType("chessWindow.ui")[0]):
 
     def promotePawn(self,squareNumber,colour):
         #add choose ability so not just queen
-        if colour == "white":
-            self.setSquarePiece(squareNumber,"queenW")
-        else:
-            self.setSquarePiece(squareNumber,"queenB")
+        self.promotionWindow = PawnPromotionWindow(colour,self,squareNumber)
+
+    def promotedOptionChosen(self,pieceName,squareNumber):
+        print(pieceName)
+        self.setSquarePiece(squareNumber,pieceName)
 
 
     def updateSelection(self,newSelectedSquare):
