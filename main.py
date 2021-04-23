@@ -18,4 +18,5 @@ sys.excepthook = my_exception_hook
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     window = ChessWindow()
+    window.show()
     sys.exit(app.exec_())
